@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid" style="margin-bottom: 2rem;">
+    <div class="stat-box">
+        <h3>Total Members</h3>
+        <p>{{ total_members }}</p>
+    </div>
+    <div class="stat-box">
+        <h3>Total Events</h3>
+        <p>{{ total_events }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Recent Events</h2>
+    {% if events %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Item</th>
+                    <th>Total Qty</th>
+                    <th>Remaining</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.event_name }}</td>
+                    <td>{{ event.item_name }}</td>
+                    <td>{{ event.total_quantity }}</td>
+                    <td style="font-size: 1.2em; color: {% if event.remaining_quantity > 0 %}var(--success){% else %}var(--danger){% endif %};">
+                        <strong>{{ event.remaining_quantity }}</strong>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ url_for('live_distribution', event_id=event.id) }}" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Distribute</a>
+                            <a href="{{ url_for('export_csv', event_id=event.id) }}" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background-color: #4a5568;">CSV</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="margin-top: 1rem;">No events found. Go to <a href="{{ url_for('events') }}">Events</a> to create one.</p>
+    {% endif %}
+</div>
+{% endblock %}

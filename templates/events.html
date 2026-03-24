@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Create New Distribution Event</h2>
+    <form method="POST">
+        <label>Event Name</label>
+        <input type="text" name="event_name" required placeholder="e.g. Ramadan Food Pack 2024">
+        
+        <label>Item Name</label>
+        <input type="text" name="item_name" required placeholder="e.g. Dry Rations">
+        
+        <label>Total Quantity</label>
+        <input type="number" name="total_quantity" required min="1" placeholder="e.g. 500">
+        
+        <button type="submit" class="btn btn-large" style="margin-top: 1rem;">Create Event</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>All Events</h2>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Event Name</th>
+                    <th>Item</th>
+                    <th>Total Qty</th>
+                    <th>Remaining</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                <tr>
+                    <td>{{ e.id }}</td>
+                    <td><strong>{{ e.event_name }}</strong></td>
+                    <td>{{ e.item_name }}</td>
+                    <td>{{ e.total_quantity }}</td>
+                    <td style="color: {% if e.remaining_quantity > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: bold;">
+                        {{ e.remaining_quantity }}
+                    </td>
+                    <td style="font-size: 0.85em; color: #718096;">{{ e.created_at[:10] }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="{{ url_for('edit_event', id=e.id) }}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background: #d4af37; color: white;">Edit</a>
+                            <form method="POST" action="{{ url_for('delete_event', id=e.id) }}" style="margin:0;" onsubmit="return confirm('Are you sure you want to delete this event? All distribution records will be permanently removed.');">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border: none; cursor: pointer;">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

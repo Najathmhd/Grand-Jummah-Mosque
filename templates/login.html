@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 4rem auto; text-align: center;">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Masjid Logo" style="height: 90px; margin-bottom: 1rem; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.15));">
+    <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Admin Login</h2>
+    <form method="POST" style="text-align: left;">
+        <label>Username</label>
+        <input type="text" name="username" required>
+        
+        <label>Password</label>
+        <input type="password" name="password" required>
+        
+        <button type="submit" class="btn btn-large" style="margin-top: 1.5rem;">Login</button>
+    </form>
+</div>
+{% endblock %}

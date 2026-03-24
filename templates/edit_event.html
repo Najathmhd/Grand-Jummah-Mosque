@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h2>Edit Event: <span style="color: var(--secondary);">{{ event.event_name }}</span></h2>
+    <form method="POST">
+        <label>Event Name</label>
+        <input type="text" name="event_name" value="{{ event.event_name }}" required>
+        
+        <label>Item Name</label>
+        <input type="text" name="item_name" value="{{ event.item_name }}" required>
+        
+        <label>Total Quantity (Will reset remaining qty to match)</label>
+        <input type="number" name="total_quantity" value="{{ event.total_quantity }}" required min="1">
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">Update Event</button>
+            <a href="{{ url_for('events') }}" class="btn" style="flex: 1; background: #94a3b8;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

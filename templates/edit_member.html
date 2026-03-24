@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h2>Edit Member: <span style="color: var(--danger);">{{ member.member_id }}</span></h2>
+    <form method="POST">
+        <label>Full Name</label>
+        <input type="text" name="name" value="{{ member.name }}" required>
+        
+        <label>Phone Number</label>
+        <input type="text" name="phone" value="{{ member.phone }}" required>
+        
+        <label>Area</label>
+        <select name="area" required>
+            <option value="Masjid Mawatha" {% if member.area == 'Masjid Mawatha' %}selected{% endif %}>Masjid Mawatha</option>
+            <option value="Pilanduwa" {% if member.area == 'Pilanduwa' %}selected{% endif %}>Pilanduwa</option>
+            <option value="Town" {% if member.area == 'Town' %}selected{% endif %}>Town</option>
+        </select>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">Update Member</button>
+            <a href="{{ url_for('members') }}" class="btn" style="flex: 1; background: #94a3b8;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2>Live Distribution: <span style="color: var(--primary);">{{ event.event_name }}</span></h2>
+    <div style="background: var(--white); padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold; border: 2px solid var(--primary);">
+        Remaining: <span id="remaining-qty" style="color: var(--danger); font-size: 1.2rem;">{{ event.remaining_quantity }}</span>
+    </div>
+</div>
+
+<div class="grid" style="align-items: start;">
+    <!-- Scanner Section -->
+    <div class="card" style="text-align: center;">
+        <h3 style="margin-bottom: 1rem;">Scan Member QR</h3>
+        <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; border-radius: 8px; overflow: hidden; border: 2px solid var(--primary);"></div>
+        
+        <div style="margin-top: 1.5rem;">
+            <h4>Or Enter ID Manually</h4>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
+                <input type="text" id="manual-id" placeholder="e.g. MM-001" style="width: 150px; margin: 0;">
+                <button onclick="processScan(document.getElementById('manual-id').value)" class="btn">Verify</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Section -->
+    <div class="card" id="result-card" style="display: none;">
+        <h3 id="result-title" style="margin-bottom: 1rem;">Scan Result</h3>
+        
+        <div id="result-message" class="alert" style="display: none;"></div>
+        
+        <div id="member-details" style="display: none; background: #f7fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+            <p style="margin-bottom: 0.5rem; color: #718096;">Name: <strong id="m-name" style="color: #2d3748; font-size: 1.2rem;"></strong></p>
+            <p style="margin-bottom: 0.5rem; color: #718096;">ID: <strong id="m-id" style="color: #2d3748;"></strong></p>
+            <p style="margin-bottom: 0.5rem; color: #718096;">Area: <strong id="m-area" style="color: #2d3748;"></strong></p>
+        </div>
+        
+        <button id="give-btn" class="btn btn-large btn-success" style="display: none;" onclick="giveItem()">Give Item</button>
+    </div>
+</div>
+
+<script>
+    const eventId = {{ event.id }};
+    let currentScannedMember = null;
+    let html5QrcodeScanner = null;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        // Prevent multiple scans while processing
+        if(currentScannedMember) return;
+        
+        processScan(decodedText);
+        // Pause scanner momentarily
+        if(html5QrcodeScanner) {
+            html5QrcodeScanner.pause(true);
+        }
+    }
+
+    function processScan(qrContent) {
+        if(!qrContent) return;
+        
+        currentScannedMember = null;
+        document.getElementById('result-card').style.display = 'block';
+        const msgBox = document.getElementById('result-message');
+        const detailsBox = document.getElementById('member-details');
+        const giveBtn = document.getElementById('give-btn');
+        
+        msgBox.style.display = 'none';
+        detailsBox.style.display = 'none';
+        giveBtn.style.display = 'none';
+        
+        msgBox.className = 'alert alert-success';
+        msgBox.innerHTML = 'Verifying...';
+        msgBox.style.display = 'block';
+        
+        fetch('{{ url_for("api_scan") }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({event_id: eventId, qr_content: qrContent})
+        })
+        .then(response => response.json().then(data => ({status: response.status, body: data})))
+        .then(res => {
+            const data = res.body;
+            msgBox.style.display = 'block';
+            msgBox.innerHTML = data.message;
+            
+            if (res.status === 200) {
+                msgBox.className = 'alert alert-success';
+                currentScannedMember = data.member;
+                
+                document.getElementById('m-name').innerText = data.member.name;
+                document.getElementById('m-id').innerText = data.member.member_id;
+                document.getElementById('m-area').innerText = data.member.area;
+                
+                detailsBox.style.display = 'block';
+                giveBtn.style.display = 'block';
+                giveBtn.disabled = false;
+                giveBtn.innerText = 'Give Item';
+            } else {
+                msgBox.className = 'alert alert-error';
+                if(data.member) {
+                    document.getElementById('m-name').innerText = data.member.name;
+                    document.getElementById('m-id').innerText = data.member.member_id;
+                    document.getElementById('m-area').innerText = data.member.area;
+                    detailsBox.style.display = 'block';
+                }
+                setTimeout(() => { resetScanner(); }, 3000);
+            }
+        })
+        .catch(err => {
+            msgBox.className = 'alert alert-error';
+            msgBox.innerHTML = 'Network Error';
+            setTimeout(() => { resetScanner(); }, 3000);
+        });
+    }
+
+    function giveItem() {
+        if(!currentScannedMember) return;
+        
+        const giveBtn = document.getElementById('give-btn');
+        giveBtn.disabled = true;
+        giveBtn.innerText = 'Processing...';
+        
+        fetch('{{ url_for("api_give") }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({event_id: eventId, member_id: currentScannedMember.member_id})
+        })
+        .then(res => res.json())
+        .then(data => {
+            const msgBox = document.getElementById('result-message');
+            if(data.status === 'success') {
+                msgBox.className = 'alert alert-success';
+                msgBox.innerHTML = data.message;
+                document.getElementById('remaining-qty').innerText = data.remaining_quantity;
+                document.getElementById('member-details').style.display = 'none';
+                giveBtn.style.display = 'none';
+            } else {
+                msgBox.className = 'alert alert-error';
+                msgBox.innerHTML = data.message;
+                giveBtn.style.display = 'none';
+            }
+            setTimeout(() => { resetScanner(); }, 3000);
+        })
+        .catch(err => {
+            alert("Error processing claim");
+            giveBtn.disabled = false;
+            giveBtn.innerText = 'Give Item';
+        });
+    }
+    
+    function resetScanner() {
+        currentScannedMember = null;
+        document.getElementById('result-card').style.display = 'none';
+        document.getElementById('manual-id').value = '';
+        if(html5QrcodeScanner && html5QrcodeScanner.getState() === 3) { // 3 = PAUSED
+            html5QrcodeScanner.resume();
+        }
+    }
+
+    // Initialize Scanner
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", 
+        { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0, disableFlip: false }, 
+        /* verbose= */ false
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+</script>
+{% endblock %}

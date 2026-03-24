@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Card - {{ member.member_id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: #f8fafc; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        /* Print layout targeting standard CR80 ID Card dimensions (2.125" x 3.375") */
+        @page {
+            size: 2.125in 3.375in;
+            margin: 0;
+        }
+
+        .id-card { 
+            width: 2.125in; 
+            height: 3.375in; 
+            background: white; 
+            border-radius: 0.125in; 
+            overflow: hidden; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+            text-align: center; 
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #d4af37;
+        }
+        
+        .card-header { 
+            background: linear-gradient(135deg, #064e3b, #022c22); 
+            color: #d4af37; 
+            padding: 0.1in; 
+            border-bottom: 0.03in solid #d4af37;
+            position: relative;
+        }
+        
+        .card-header::before {
+            content: '۞';
+            position: absolute;
+            top: -0.1in;
+            right: -0.1in;
+            font-size: 0.8in;
+            opacity: 0.15;
+            font-family: 'Amiri', serif;
+            color: #d4af37;
+        }
+        
+        .card-header img {
+            height: 0.35in;
+            margin-bottom: 0.05in;
+            filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.4));
+            position: relative;
+            z-index: 2;
+        }
+        
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 0.11in;
+            color: white;
+            margin-bottom: 0.03in;
+            opacity: 0.95;
+            line-height: 1;
+        }
+        
+        .card-header h2 { 
+            font-family: 'Amiri', serif;
+            margin: 0; 
+            font-size: 0.14in; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            letter-spacing: 0.01in;
+            line-height: 1.2;
+        }
+        
+        .card-header p {
+            font-size: 0.08in;
+            margin: 0.03in 0 0;
+            color: white;
+            opacity: 0.9;
+            letter-spacing: 0.02in;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .card-body { 
+            flex-grow: 1;
+            padding: 0.1in 0.05in 0.05in; 
+            background: #fffdf8;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .card-body::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 0.05in;
+            pointer-events: none;
+        }
+        
+        .qr-wrapper {
+            background: white;
+            padding: 0.05in;
+            border-radius: 0.05in;
+            border: 0.02in solid #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.08in;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        
+        .qr-code { 
+            width: 1in; 
+            height: 1in; 
+            display: block;
+        }
+        
+        .member-name { 
+            margin: 0;
+            color: #064e3b; 
+            font-size: 0.16in; 
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        
+        .member-id { 
+            font-size: 0.14in; 
+            font-weight: 700; 
+            color: #dc2626; 
+            letter-spacing: 0.02in; 
+            margin: 0.05in 0;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .area { 
+            color: #4b5563; 
+            font-size: 0.1in; 
+            font-weight: 600; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.03in;
+        }
+        
+        .area::before, .area::after {
+            content: '♦';
+            color: #d4af37;
+            font-size: 0.08in;
+        }
+        
+        .footer-note {
+            background: #064e3b;
+            color: #d4af37;
+            font-size: 0.08in;
+            padding: 0.05in;
+            letter-spacing: 0.01in;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-top: 1px solid #022c22;
+        }
+        
+        .print-btn { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            padding: 0.8rem 1.5rem; 
+            background: linear-gradient(135deg, #059669, #047857); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        @media print {
+            body { 
+                background: white; 
+                display: block;
+                padding: 0;
+                margin: 0;
+            }
+            .id-card { 
+                box-shadow: none; 
+                border-radius: 0; 
+                border: 0.01in solid #000; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            .card-header { background: #064e3b !important; color: #d4af37 !important; border-bottom: 0.03in solid #d4af37 !important;}
+            .footer-note { background: #064e3b !important; color: #d4af37 !important;}
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Print ID Card</button>
+    
+    <div class="id-card">
+        <div class="card-header">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+            <h2>Grand Jummah Mosque</h2>
+            <p>Official Membership</p>
+        </div>
+        <div class="card-body">
+            <div style="font-family: 'Amiri', serif; font-size: 0.12in; color: #064e3b; margin-bottom: 0.05in; opacity: 0.85;">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+            <div class="qr-wrapper">
+                <img class="qr-code" src="{{ url_for('static', filename='qrcodes/' + member.member_id + '.png') }}" alt="QR Code">
+            </div>
+            <h3 class="member-name">{{ member.name }}</h3>
+            <div class="member-id">{{ member.member_id }}</div>
+            <div class="area">{{ member.area }}</div>
+        </div>
+        <div class="footer-note">
+            Warakapola, Sri Lanka
+        </div>
+    </div>
+</body>
+</html>
