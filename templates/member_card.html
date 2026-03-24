@@ -228,7 +228,7 @@
                 Verified members only
             </div>
             <div class="qr-wrapper">
-                <img class="qr-code" src="{{ url_for('static', filename='qrcodes/' + member.member_id + '.png') }}" alt="QR Code">
+                <img class="qr-code" src="{{ url_for('serve_qr', member_id=member.member_id) }}" alt="QR Code">
             </div>
             <h3 class="member-name">{{ member.name }}</h3>
             <div class="member-id">{{ member.member_id }}</div>

@@ -18,8 +18,8 @@ url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
-QR_DIR = os.path.join('static', 'qrcodes')
-os.makedirs(QR_DIR, exist_ok=True)
+# For Vercel, we don't use a local storage for QRs. 
+# We'll serve them via a route instead.
 
 def login_required(f):
     @wraps(f)
@@ -99,12 +99,6 @@ def members():
                 "area": area, 
                 "member_id": new_member_id
             }).execute()
-            
-            # Generate QR Code
-            qr_data = url_for('view_member', member_id=new_member_id, _external=True)
-            img = qrcode.make(qr_data)
-            qr_path = os.path.join(QR_DIR, f"{new_member_id}.png")
-            img.save(qr_path)
             
             flash(f"Member added successfully! ID: {new_member_id}", 'success')
         except Exception as e:
@@ -320,6 +314,15 @@ def export_csv(event_id):
             
     return Response(generate(), mimetype='text/csv', 
                     headers={'Content-Disposition': f'attachment; filename=event_{event_id}_distribution.csv'})
+
+@app.route('/qr/<member_id>')
+def serve_qr(member_id):
+    qr_data = url_for('view_member', member_id=member_id, _external=True)
+    img = qrcode.make(qr_data)
+    buf = io.BytesIO()
+    img.save(buf)
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
