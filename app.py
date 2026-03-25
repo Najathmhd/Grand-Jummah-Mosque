@@ -110,6 +110,7 @@ def members():
     return render_template('members.html', members=members_list.data)
 
 @app.route('/member/card/<member_id>')
+@login_required
 def member_card(member_id):
     member = supabase.table('members').select("*").eq("member_id", member_id).single().execute()
     if member.data:
@@ -117,6 +118,7 @@ def member_card(member_id):
     return "Member not found", 404
 
 @app.route('/member/view/<member_id>')
+@login_required
 def view_member(member_id):
     member = supabase.table('members').select("*").eq("member_id", member_id).single().execute()
     if member.data:
@@ -316,6 +318,7 @@ def export_csv(event_id):
                     headers={'Content-Disposition': f'attachment; filename=event_{event_id}_distribution.csv'})
 
 @app.route('/qr/<member_id>')
+@login_required
 def serve_qr(member_id):
     qr_data = url_for('view_member', member_id=member_id, _external=True)
     img = qrcode.make(qr_data)
