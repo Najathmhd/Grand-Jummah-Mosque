@@ -73,24 +73,36 @@ def members():
         name = request.form['name']
         phone = request.form['phone']
         area = request.form['area']
+        manual_id = request.form.get('manual_id', '').strip()
         
-        prefix_map = {
-            'Masjid Mawatha': 'MM',
-            'Pilanduwa': 'PL',
-            'Town': 'TN'
-        }
-        prefix = prefix_map.get(area, 'XX')
-        
-        # Determine next Member ID
-        last_member = supabase.table('members').select("member_id").eq("area", area).order("id", desc=True).limit(1).execute()
-        
-        if last_member.data:
-            last_id_num = int(last_member.data[0]['member_id'].split('-')[1])
-            new_id_num = last_id_num + 1
+        if manual_id:
+            # Check if manually entered ID already exists
+            existing = supabase.table('members').select("member_id").eq("member_id", manual_id).execute()
+            if existing.data:
+                flash(f"Error: The Member ID '{manual_id}' is already in use by another person.", 'error')
+                return redirect(url_for('members'))
+            new_member_id = manual_id
         else:
-            new_id_num = 1
+            # Traditional Auto-generation logic
+            prefix_map = {
+                'Masjid Mawatha': 'MM',
+                'Pilanduwa': 'PL',
+                'Town': 'TN'
+            }
+            prefix = prefix_map.get(area, 'XX')
             
-        new_member_id = f"{prefix}-{new_id_num:03d}"
+            last_member = supabase.table('members').select("member_id").eq("area", area).order("id", desc=True).limit(1).execute()
+            
+            if last_member.data:
+                try:
+                    last_id_num = int(last_member.data[0]['member_id'].split('-')[1])
+                    new_id_num = last_id_num + 1
+                except (IndexError, ValueError):
+                    new_id_num = 1 # Fallback if ID is in a different format
+            else:
+                new_id_num = 1
+                
+            new_member_id = f"{prefix}-{new_id_num:03d}"
         
         try:
             supabase.table('members').insert({
