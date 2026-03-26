@@ -19,12 +19,20 @@
         
         .controls {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             z-index: 1000;
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                left: 20px;
+                right: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
         }
         
         /* Print layout targeting standard CR80 ID Card dimensions (2.125" x 3.375") */
