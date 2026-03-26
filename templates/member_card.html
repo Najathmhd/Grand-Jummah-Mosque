@@ -17,6 +17,16 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
         /* Print layout targeting standard CR80 ID Card dimensions (2.125" x 3.375") */
         @page {
             size: 2.125in 3.375in;
@@ -194,6 +204,19 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
+        .download-btn {
+            padding: 0.8rem 1.5rem; 
+            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
         @media print {
             body { 
                 background: white; 
@@ -210,14 +233,18 @@
             }
             .card-header { background: #064e3b !important; color: #d4af37 !important; border-bottom: 0.03in solid #d4af37 !important;}
             .footer-note { background: #064e3b !important; color: #d4af37 !important;}
-            .print-btn { display: none; }
+            .controls { display: none; }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-    <button class="print-btn" onclick="window.print()">🖨️ Print ID Card</button>
+    <div class="controls">
+        <button class="print-btn" onclick="window.print()">🖨️ Print PDF</button>
+        <button class="download-btn" onclick="downloadJPG()">🖼️ Download JPG</button>
+    </div>
     
-    <div class="id-card">
+    <div class="id-card" id="cardExport">
         <div class="card-header">
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
             <h2>Grand Jummah Mosque</h2>
@@ -238,5 +265,33 @@
             Warakapola, Sri Lanka
         </div>
     </div>
+
+    <script>
+        function downloadJPG() {
+            const card = document.getElementById('cardExport');
+            const btn = document.querySelector('.download-btn');
+            btn.innerHTML = "⏳ Generating...";
+            btn.disabled = true;
+
+            html2canvas(card, {
+                scale: 4, // High resolution
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `MemberCard_{{ member.member_id }}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                
+                btn.innerHTML = "🖼️ Download JPG";
+                btn.disabled = false;
+            }).catch(err => {
+                console.error(err);
+                alert("Error generating image. Try again.");
+                btn.innerHTML = "🖼️ Download JPG";
+                btn.disabled = false;
+            });
+        }
+    </script>
 </body>
 </html>
