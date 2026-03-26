@@ -196,33 +196,39 @@
             border-top: 1px solid #022c22;
         }
         
-        .print-btn { 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            padding: 0.8rem 1.5rem; 
-            background: linear-gradient(135deg, #059669, #047857); 
+        .print-btn, .download-btn { 
+            padding: 0.7rem 1.2rem; 
             color: white; 
             border: none; 
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: 700;
             font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 160px;
+        }
+
+        .print-btn { 
+            background: linear-gradient(135deg, #059669, #047857); 
         }
         
         .download-btn {
-            padding: 0.8rem 1.5rem; 
             background: linear-gradient(135deg, #d4af37, #b8860b); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .print-btn:hover, .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .print-btn:active, .download-btn:active {
+            transform: translateY(0);
         }
         
         @media print {
