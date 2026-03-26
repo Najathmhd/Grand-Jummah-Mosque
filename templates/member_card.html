@@ -17,22 +17,28 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         
-        .controls {
+        .print-control {
             position: fixed;
             top: 24px;
             right: 24px;
-            display: flex;
-            gap: 12px;
+            z-index: 1000;
+        }
+
+        .download-control {
+            position: fixed;
+            top: 24px;
+            left: 24px;
             z-index: 1000;
         }
         
         @media (max-width: 600px) {
-            .controls {
-                left: 20px;
-                right: 20px;
+            .print-control, .download-control {
+                position: static;
+                display: flex;
                 justify-content: center;
-                flex-wrap: wrap;
+                margin: 10px 0;
             }
+            body { padding-top: 10px; }
         }
         
         /* Print layout targeting standard CR80 ID Card dimensions (2.125" x 3.375") */
@@ -247,14 +253,16 @@
             }
             .card-header { background: #064e3b !important; color: #d4af37 !important; border-bottom: 0.03in solid #d4af37 !important;}
             .footer-note { background: #064e3b !important; color: #d4af37 !important;}
-            .controls { display: none; }
+            .print-control, .download-control { display: none; }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-    <div class="controls">
+    <div class="print-control">
         <button class="print-btn" onclick="window.print()">🖨️ Print PDF</button>
+    </div>
+    <div class="download-control">
         <button class="download-btn" onclick="downloadJPG()">🖼️ Download JPG</button>
     </div>
     
